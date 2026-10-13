@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ERT 튜토리얼</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1A2530;
+    --ink-sub: #5B6B78;
+    --paper: #FFFFFF;
+    --mist: #F2F5F7;
+    --line: #D9E1E6;
+    --accent: #0B76A0;
+    --on-accent: #FFFFFF;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #E6EDF2; --ink-sub: #9AABB8; --paper: #121A21; --mist: #1A242D;
+      --line: #2C3A45; --accent: #4FB3DA; --on-accent: #0D1A22;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ink: #E6EDF2; --ink-sub: #9AABB8; --paper: #121A21; --mist: #1A242D;
+    --line: #2C3A45; --accent: #4FB3DA; --on-accent: #0D1A22;
+  }
+  *, *::before, *::after { box-sizing: inherit; }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Pretendard", "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    font-size: 1rem;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem); }
+
+  /* 상단 소개 */
+  .intro { padding: clamp(2.5rem, 6vw, 4rem) 0 0; }
+  .brand { font-weight: 700; font-size: 0.95rem; color: var(--accent); margin: 0 0 1rem; }
+  .intro h1 { font-size: clamp(1.75rem, 4vw, 2.5rem); line-height: 1.25; margin: 0 0 0.75rem; letter-spacing: -0.02em; }
+  .intro p.lead { margin: 0; color: var(--ink-sub); max-width: 60ch; }
+
+  /* 데모 그리드 (2 x 2) */
+  #demos {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(1rem, 2.5vw, 1.75rem);
+    padding-top: clamp(2rem, 4vw, 3rem);
+    padding-bottom: clamp(2rem, 4vw, 3rem);
+  }
+  .demo {
+    display: flex; flex-direction: column;
+    border: 1px solid var(--line); border-radius: 12px;
+    padding: 1.25rem; background: var(--paper);
+  }
+  .demo:hover { border-color: var(--accent); }
+  .demo-head { display: grid; grid-template-columns: auto 1fr; gap: 0.75rem; align-items: start; margin-bottom: 1rem; }
+  .demo-head .no {
+    width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center;
+    background: var(--accent); color: var(--on-accent); font-weight: 700; font-size: 0.875rem;
+  }
+  .demo-head h2 { font-size: 1.125rem; line-height: 1.4; margin: 0.1rem 0 0.2rem; letter-spacing: -0.01em; }
+  .demo-head p { margin: 0; color: var(--ink-sub); font-size: 0.875rem; line-height: 1.55; }
+  .demo .frame { margin-top: auto; }
+  @media (max-width: 720px) {
+    #demos { grid-template-columns: 1fr; }
+  }
+
+  .frame {
+    position: relative; width: 100%; height: 0;
+    padding-bottom: calc(var(--ratio, 56.25%) + var(--extra, 0px));
+    background: var(--mist); border: 1px solid var(--line); border-radius: 10px; overflow: hidden;
+  }
+  .frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; color-scheme: light; }
+  .frame iframe.is-popout { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 9999999; }
+  .empty {
+    position: absolute; inset: 0; display: grid; place-items: center; text-align: center;
+    padding: 2rem; color: var(--ink-sub); font-size: 0.9375rem;
+  }
+
+  footer { padding: 2rem 0 3rem; font-size: 0.8125rem; color: var(--ink-sub); }
+
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+  <header class="intro">
+    <div class="wrap">
+      <p class="brand">QESG ERT</p>
+      <h1>ERT 튜토리얼</h1>
+      <p class="lead">튜토리얼을 클릭하면 화면 전체로 열려 기능을 직접 따라해 볼 수 있습니다.</p>
+    </div>
+  </header>
+
+  <main class="wrap" id="demos"></main>
+
+  <footer class="wrap">© QuantifiedESG</footer>
+
+<!-- ==========================================================
+     데모 목록: 아래 <template> 블록만 수정하면 됩니다.
+     - 블록 하나가 데모 하나이며, 위에서부터 순서대로 표시됩니다.
+     - data-title, data-desc에 제목과 설명을 적습니다.
+     - <template> 태그 사이에 Arcade Embed 코드를 통째로 붙여넣습니다.
+       (inline, modal 어느 방식이든 그대로 붙여넣으면 됩니다)
+     - 사이를 비워 두면 '준비 중'으로 표시됩니다.
+     - 데모를 늘리거나 줄이려면 블록을 복사하거나 지우면 됩니다.
+     ========================================================== -->
+
+<template class="demo-src" data-title="목차 구성" data-desc="보고서 목차를 추가하고 순서와 이름을 편집하는 방법입니다.">
+<!--ARCADE EMBED START--><script> function onArcadeIframeMessage(e) { if (e.origin !== 'https://demo.arcade.software' || !e.isTrusted) return; const arcadeIframe = document.querySelector(`iframe[src*="${e.data.id}"]`); if (!arcadeIframe || !arcadeIframe.contentWindow) return; if (e.data.event === 'arcade-init') { arcadeIframe.contentWindow.postMessage({event: 'register-popout-handler'}, '*'); } if (e.data.event === 'arcade-popout-open') { arcadeIframe.style['position'] = 'fixed'; arcadeIframe.style['z-index'] = '9999999'; } if (e.data.event === 'arcade-popout-close') { arcadeIframe.style['position'] = 'absolute'; arcadeIframe.style['z-index'] = 'auto'; } } window.addEventListener('message', onArcadeIframeMessage); </script><div style="position: relative; padding-bottom: calc(47.4479% + 41px); height: 0px; width: 100%;"><iframe src="https://demo.arcade.software/9kktiEoLoNC4Bnyyfgzw?embed&embed_mobile=modal&embed_desktop=modal&show_copy_link=true" title="ERT V2: 목차 구성하기" frameborder="0" loading="lazy" webkitallowfullscreen mozallowfullscreen allowfullscreen allow="clipboard-write; autoplay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; color-scheme: light;" ></iframe></div><!--ARCADE EMBED END-->
+</template>
+
+<template class="demo-src" data-title="도식 및 다이어그램 생성" data-desc="보고서 본문에 들어갈 도식과 다이어그램을 생성하는 방법입니다.">
+<!--ARCADE EMBED START--><script> function onArcadeIframeMessage(e) { if (e.origin !== 'https://demo.arcade.software' || !e.isTrusted) return; const arcadeIframe = document.querySelector(`iframe[src*="${e.data.id}"]`); if (!arcadeIframe || !arcadeIframe.contentWindow) return; if (e.data.event === 'arcade-init') { arcadeIframe.contentWindow.postMessage({event: 'register-popout-handler'}, '*'); } if (e.data.event === 'arcade-popout-open') { arcadeIframe.style['position'] = 'fixed'; arcadeIframe.style['z-index'] = '9999999'; } if (e.data.event === 'arcade-popout-close') { arcadeIframe.style['position'] = 'absolute'; arcadeIframe.style['z-index'] = 'auto'; } } window.addEventListener('message', onArcadeIframeMessage); </script><div style="position: relative; padding-bottom: calc(47.4479% + 41px); height: 0px; width: 100%;"><iframe src="https://demo.arcade.software/CIni6bPs2lVX1ZdhmN3p?embed&embed_mobile=modal&embed_desktop=modal&show_copy_link=true" title="ERT V2: 도식, 다이어그램 생성하기" frameborder="0" loading="lazy" webkitallowfullscreen mozallowfullscreen allowfullscreen allow="clipboard-write; autoplay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; color-scheme: light;" ></iframe></div><!--ARCADE EMBED END-->
+</template>
+
+<template class="demo-src" data-title="정량 데이터 입력" data-desc="ESG 정량 데이터를 입력하고 표로 구성하는 방법입니다.">
+<!--ARCADE EMBED START--><script> function onArcadeIframeMessage(e) { if (e.origin !== 'https://demo.arcade.software' || !e.isTrusted) return; const arcadeIframe = document.querySelector(`iframe[src*="${e.data.id}"]`); if (!arcadeIframe || !arcadeIframe.contentWindow) return; if (e.data.event === 'arcade-init') { arcadeIframe.contentWindow.postMessage({event: 'register-popout-handler'}, '*'); } if (e.data.event === 'arcade-popout-open') { arcadeIframe.style['position'] = 'fixed'; arcadeIframe.style['z-index'] = '9999999'; } if (e.data.event === 'arcade-popout-close') { arcadeIframe.style['position'] = 'absolute'; arcadeIframe.style['z-index'] = 'auto'; } } window.addEventListener('message', onArcadeIframeMessage); </script><div style="position: relative; padding-bottom: calc(47.4479% + 41px); height: 0px; width: 100%;"><iframe src="https://demo.arcade.software/npHDpWDjLVFN2V76t452?embed&embed_mobile=modal&embed_desktop=modal&show_copy_link=true" title="ERT V2: 정량 데이터 입력하기" frameborder="0" loading="lazy" webkitallowfullscreen mozallowfullscreen allowfullscreen allow="clipboard-write; autoplay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; color-scheme: light;" ></iframe></div><!--ARCADE EMBED END-->
+</template>
+
+<template class="demo-src" data-title="AI 그린워싱 검토" data-desc="AI로 본문의 환경 주장을 점검하고 리스크를 확인하는 방법입니다.">
+<!--ARCADE EMBED START--><script> function onArcadeIframeMessage(e) { if (e.origin !== 'https://demo.arcade.software' || !e.isTrusted) return; const arcadeIframe = document.querySelector(`iframe[src*="${e.data.id}"]`); if (!arcadeIframe || !arcadeIframe.contentWindow) return; if (e.data.event === 'arcade-init') { arcadeIframe.contentWindow.postMessage({event: 'register-popout-handler'}, '*'); } if (e.data.event === 'arcade-popout-open') { arcadeIframe.style['position'] = 'fixed'; arcadeIframe.style['z-index'] = '9999999'; } if (e.data.event === 'arcade-popout-close') { arcadeIframe.style['position'] = 'absolute'; arcadeIframe.style['z-index'] = 'auto'; } } window.addEventListener('message', onArcadeIframeMessage); </script><div style="position: relative; padding-bottom: calc(47.4479% + 41px); height: 0px; width: 100%;"><iframe src="https://demo.arcade.software/76Bt77cvYAgVDZJhpr32?embed&embed_mobile=modal&embed_desktop=modal&show_copy_link=true" title="ERT V2: 그린워싱 검토하기" frameborder="0" loading="lazy" webkitallowfullscreen mozallowfullscreen allowfullscreen allow="clipboard-write; autoplay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; color-scheme: light;" ></iframe></div><!--ARCADE EMBED END-->
+</template>
+
+<script>
+/* Arcade modal(팝아웃) 처리: 붙여넣은 코드의 스크립트를 대신해 페이지 전체에서 한 번만 등록 */
+window.addEventListener("message", e => {
+  if (e.origin !== "https://demo.arcade.software" || !e.isTrusted || !e.data || !e.data.id) return;
+  const f = document.querySelector(`iframe[src*="${CSS.escape(e.data.id)}"]`);
+  if (!f || !f.contentWindow) return;
+  if (e.data.event === "arcade-init") f.contentWindow.postMessage({ event: "register-popout-handler" }, "*");
+  if (e.data.event === "arcade-popout-open") f.classList.add("is-popout");
+  if (e.data.event === "arcade-popout-close") f.classList.remove("is-popout");
+});
+
+/* 붙여넣은 Embed 코드에서 iframe 주소와 화면 비율 추출 */
+function parseEmbed(tpl) {
+  const iframe = tpl.content.querySelector("iframe");
+  if (iframe && iframe.getAttribute("src")) {
+    const box = (iframe.parentElement && iframe.parentElement.getAttribute("style")) || "";
+    const m = box.match(/padding-bottom:\s*calc\(\s*([\d.]+%)\s*\+\s*([\d.]+px)\s*\)/) ||
+              box.match(/padding-bottom:\s*([\d.]+%)/);
+    return { src: iframe.getAttribute("src"), ratio: m ? m[1] : "56.25%", extra: m && m[2] ? m[2] : "0px" };
+  }
+  const text = tpl.content.textContent.trim();
+  if (/^https?:\/\//.test(text)) {
+    const share = text.match(/app\.arcade\.software\/share\/([A-Za-z0-9_-]+)/);
+    return { src: share ? `https://demo.arcade.software/${share[1]}?embed&show_copy_link=true` : text, ratio: "56.25%", extra: "0px" };
+  }
+  return null;
+}
+
+function toShareUrl(src) {
+  try {
+    const u = new URL(src);
+    ["embed", "embed_mobile", "embed_desktop", "show_copy_link"].forEach(k => u.searchParams.delete(k));
+    return u.toString();
+  } catch (e) { return src; }
+}
+
+function esc(t) {
+  return String(t).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+const list = document.getElementById("demos");
+
+document.querySelectorAll("template.demo-src").forEach((tpl, i) => {
+  const title = tpl.dataset.title || `데모 ${i + 1}`;
+  const desc = tpl.dataset.desc || "";
+  const p = parseEmbed(tpl);
+  const id = `demo-${i + 1}`;
+
+
+  const frame = p
+    ? `<div class="frame" style="--ratio:${esc(p.ratio)};--extra:${esc(p.extra)}">
+         <iframe src="${esc(p.src)}" title="${esc(title)} 튜토리얼" loading="lazy" allowfullscreen allow="clipboard-write; autoplay; fullscreen"></iframe>
+       </div>`
+    : `<div class="frame"><div class="empty">이 튜토리얼은 준비 중입니다.</div></div>`;
+
+  list.insertAdjacentHTML("beforeend", `
+    <section class="demo" id="${id}">
+      <div class="demo-head">
+        <span class="no">${i + 1}</span>
+        <div>
+          <h2>${esc(title)}</h2>
+          ${desc ? `<p>${esc(desc)}</p>` : ""}
+        </div>
+      </div>
+      ${frame}
+    </section>`);
+});
+</script>
+</body>
+</html>
